@@ -7,21 +7,6 @@ datasource db {
   provider = "postgresql"
 }
 
-// Enums
-
-enum TokenType {
-  REFRESH
-  EMAIL_VERIFY
-  PASSWORD_RESET
-}
-
-enum PresentationStatus {
-  PENDING
-  PROCESSING
-  DONE
-  FAILED
-}
-
 // Models
 model User {
   id            String    @id @default(uuid())
@@ -34,21 +19,6 @@ model User {
 
   tokens        Token[]
   presentations Presentation[]
-}
-
-model Presentation {
-  id                 String             @id @default(uuid())
-  fileName           String
-  cloudinaryUrl      String
-  cloudinaryPublicId String
-  slides             Json
-  summary            String?            @db.Text
-  status             PresentationStatus @default(PENDING)
-  createdAt          DateTime           @default(now())
-  updatedAt          DateTime           @updatedAt
-  userId             String
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Token {
@@ -64,4 +34,31 @@ model Token {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, type])
+}
+
+model Presentation {
+  id                 String             @id @default(uuid())
+  fileName           String
+  cloudinaryUrl      String
+  cloudinaryPublicId String
+  slides             Json
+  summary            String?            @db.Text
+  status             PresentationStatus @default(PENDING)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  userId             String
+  User               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum TokenType {
+  REFRESH
+  EMAIL_VERIFY
+  PASSWORD_RESET
+}
+
+enum PresentationStatus {
+  PENDING
+  PROCESSING
+  DONE
+  FAILED
 }
