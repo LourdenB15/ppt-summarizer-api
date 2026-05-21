@@ -6,7 +6,46 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
-// Enums
+
+model User {
+  id            String         @id @default(uuid())
+  email         String?        @unique
+  password      String?
+  name          String?
+  emailVerified DateTime?      @map("email_verified")
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  Presentation  Presentation[]
+  tokens        Token[]
+}
+
+model Token {
+  id         String    @id @default(uuid())
+  type       TokenType
+  token      String    @unique
+  expiresAt  DateTime
+  createdAt  DateTime  @default(now())
+  consumedAt DateTime?
+  revokedAt  DateTime?
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type])
+}
+
+model Presentation {
+  id                 String             @id
+  fileName           String
+  cloudinaryUrl      String
+  cloudinaryPublicId String
+  slides             Json
+  summary            String?
+  status             PresentationStatus @default(PENDING)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime
+  userId             String
+  User               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
 
 enum TokenType {
   REFRESH
@@ -14,30 +53,9 @@ enum TokenType {
   PASSWORD_RESET
 }
 
-// Models
-model User {
-  id               String    @id @default(uuid())
-  email            String?   @unique
-  password         String?
-  name             String?
-  emailVerified    DateTime? @map("email_verified") // @map is custom table name
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-  
-  tokens           Token[]
-}
-
-model Token {
-  id         String     @id @default(uuid())
-  type       TokenType
-  token      String     @unique
-  expiresAt  DateTime
-  createdAt  DateTime   @default(now())
-  consumedAt DateTime?
-  revokedAt  DateTime?
-
-  userId     String
-  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId, type])
+enum PresentationStatus {
+  PENDING
+  PROCESSING
+  DONE
+  FAILED
 }
