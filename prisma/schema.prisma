@@ -6,6 +6,7 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
 // Enums
 
 enum TokenType {
@@ -14,30 +15,53 @@ enum TokenType {
   PASSWORD_RESET
 }
 
+enum PresentationStatus {
+  PENDING
+  PROCESSING
+  DONE
+  FAILED
+}
+
 // Models
 model User {
-  id               String    @id @default(uuid())
-  email            String?   @unique
-  password         String?
-  name             String?
-  emailVerified    DateTime? @map("email_verified") // @map is custom table name
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-  
-  tokens           Token[]
+  id            String    @id @default(uuid())
+  email         String?   @unique
+  password      String?
+  name          String?
+  emailVerified DateTime? @map("email_verified") // @map is custom table name
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  tokens        Token[]
+  presentations Presentation[]
+}
+
+model Presentation {
+  id                 String             @id @default(uuid())
+  fileName           String
+  cloudinaryUrl      String
+  cloudinaryPublicId String
+  slides             Json
+  summary            String?            @db.Text
+  status             PresentationStatus @default(PENDING)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  userId             String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Token {
-  id         String     @id @default(uuid())
+  id         String    @id @default(uuid())
   type       TokenType
-  token      String     @unique
+  token      String    @unique
   expiresAt  DateTime
-  createdAt  DateTime   @default(now())
+  createdAt  DateTime  @default(now())
   consumedAt DateTime?
   revokedAt  DateTime?
 
-  userId     String
-  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, type])
 }
