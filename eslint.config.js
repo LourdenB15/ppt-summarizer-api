@@ -5,7 +5,16 @@ export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    ignores: ["dist/**", "node_modules/**", "src/generated/**", ".env", "*.sql", "*.md"],
+    ignores: [
+      "dist/**",
+      "node_modules/**",
+      "src/generated/**",
+      ".env",
+      "*.sql",
+      "*.md",
+      "eslint.config.js",
+      "prisma.config.ts",
+    ],
   },
   {
     languageOptions: {
@@ -16,8 +25,11 @@ export default tseslint.config(
     },
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
-      "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        { argsIgnorePattern: "^_" },
+      ],
       "no-console": "off",
     },
-  }
+  },
 );
