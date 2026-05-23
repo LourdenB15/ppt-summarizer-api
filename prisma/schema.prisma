@@ -37,17 +37,15 @@ model Token {
 }
 
 model Presentation {
-  id                 String             @id @default(uuid())
-  fileName           String
-  cloudinaryUrl      String
-  cloudinaryPublicId String
-  slides             Json
-  summary            String?            @db.Text
-  status             PresentationStatus @default(PENDING)
-  createdAt          DateTime           @default(now())
-  updatedAt          DateTime           @updatedAt
-  userId             String
-  User               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String             @id @default(uuid())
+  fileName  String
+  slides    Json
+  summary   String?            @db.Text
+  status    PresentationStatus @default(PENDING)
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+  userId    String
+  User      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum TokenType {
