@@ -60,3 +60,9 @@ enum PresentationStatus {
   DONE
   FAILED
 }
+
+enum SummaryDetail {
+  SHORT
+  MEDIUM
+  DEEP_DIVE
+}
