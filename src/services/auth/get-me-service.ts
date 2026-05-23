@@ -8,9 +8,8 @@ export const GetMeService = async (userId: string) => {
         id: true,
         name: true,
         email: true,
-        role: true,
         emailVerified: true,
-      }
+      },
     });
 
     if (!user) {

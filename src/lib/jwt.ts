@@ -1,20 +1,31 @@
 import jwt, { SignOptions } from "jsonwebtoken";
 
-export type JwtPayload = { sub: string; role: string; type: "access" | "refresh" };
-const jwtSecret = process.env.JWT_SECRET ? (process.env.JWT_SECRET as string) : "no-jwt-key";
+export type JwtPayload = {
+  sub: string;
+  type: "access" | "refresh";
+};
+const jwtSecret = process.env.JWT_SECRET
+  ? (process.env.JWT_SECRET as string)
+  : "no-jwt-key";
 
 export enum TokenExpiry {
   ACCESS_TOKEN_EXPIRES = "15m",
   REFRESH_TOKEN_EXPIRES = "7d",
 }
 
-export function signAccessToken(userId: string, role: string, duration: SignOptions["expiresIn"]) {
-  const payload: JwtPayload = { sub: userId, role, type: "access" };
+export function signAccessToken(
+  userId: string,
+  duration: SignOptions["expiresIn"],
+) {
+  const payload: JwtPayload = { sub: userId, type: "access" };
   return jwt.sign(payload, jwtSecret, { expiresIn: duration });
 }
 
-export function signRefreshToken(userId: string, role: string, duration: SignOptions["expiresIn"]) {
-  const payload: JwtPayload = { sub: userId, role, type: "refresh" };
+export function signRefreshToken(
+  userId: string,
+  duration: SignOptions["expiresIn"],
+) {
+  const payload: JwtPayload = { sub: userId, type: "refresh" };
   return jwt.sign(payload, jwtSecret, { expiresIn: duration });
 }
 
@@ -35,7 +46,6 @@ export function verifyRefreshToken(token: string): JwtPayload | null {
     return null;
   }
 }
-
 
 export function toMilliseconds(duration?: string | number) {
   if (duration === undefined) return undefined;

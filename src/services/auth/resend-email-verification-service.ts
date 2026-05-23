@@ -17,32 +17,53 @@ export async function ResendEmailVerificationService(email: string) {
 
     // Check if Email is verified already
     if (user.emailVerified) {
-      return { code: 200, status: "success", message: "Email already verified" };
+      return {
+        code: 200,
+        status: "success",
+        message: "Email already verified",
+      };
     }
 
     // Check the Previous Email Verification Token
-    const previousToken = await tokenRepository.findLatestEmailVerificationTokenByUser(user.id);
+    const previousToken =
+      await tokenRepository.findLatestEmailVerificationTokenByUser(user.id);
     if (!previousToken) {
-      return { code: 400, status: "error", message: "No verification token available to resend" };
+      return {
+        code: 400,
+        status: "error",
+        message: "No verification token available to resend",
+      };
     }
 
     // Check if the token is already consumed
     if (previousToken.consumedAt) {
-      return { code: 400, status: "error", message: "Verification link already used" };
+      return {
+        code: 400,
+        status: "error",
+        message: "Verification link already used",
+      };
     }
 
     // Check if there's still valid token
     if (previousToken.expiresAt.getTime() > Date.now()) {
-      return { code: 400, status: "error", message: "Current verification link is still valid" };
+      return {
+        code: 400,
+        status: "error",
+        message: "Current verification link is still valid",
+      };
     }
 
     await tokenRepository.revokeToken(previousToken.id);
     const token = crypto.randomUUID();
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-    await tokenRepository.createEmailVerificationToken({ userId: user.id, token, expiresAt });
+    await tokenRepository.createEmailVerificationToken({
+      userId: user.id,
+      token,
+      expiresAt,
+    });
 
-    const emailVerificationURL = `${process.env.BACKEND_URL}/api/auth/v1/verify-email?token=${encodeURIComponent(token)}`;
+    const emailVerificationURL = `${process.env.FRONTEND_URL}/verify-email?token=${encodeURIComponent(token)}`;
 
     const html = renderTemplate("verify-email.html", {
       name: user.name ?? "there",
@@ -63,6 +84,10 @@ export async function ResendEmailVerificationService(email: string) {
     };
   } catch (error) {
     console.error("ResendEmailVerificationService error", error);
-    return { code: 500, status: "error", message: "Unable to resend verification email" };
+    return {
+      code: 500,
+      status: "error",
+      message: "Unable to resend verification email",
+    };
   }
 }

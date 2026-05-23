@@ -5,7 +5,7 @@ import { signAccessToken, signRefreshToken, TokenExpiry } from "@/lib/jwt";
 
 export async function LoginCredentialsService(email: string, password: string) {
   const userRepository = new UserRepository();
-    const tokenRepository = new TokenRepository();
+  const tokenRepository = new TokenRepository();
 
   try {
     // Validate User Credentials
@@ -15,12 +15,22 @@ export async function LoginCredentialsService(email: string, password: string) {
     }
 
     if (!user.emailVerified) {
-      return { code: 403, status: "error", message: "Please verify your email first" };
+      return {
+        code: 403,
+        status: "error",
+        message: "Please verify your email first",
+      };
     }
 
     // Generate Tokens
-    const accessToken = signAccessToken(user.id, user.role, TokenExpiry.ACCESS_TOKEN_EXPIRES);
-    const refreshToken = signRefreshToken(user.id, user.role, TokenExpiry.REFRESH_TOKEN_EXPIRES);
+    const accessToken = signAccessToken(
+      user.id,
+      TokenExpiry.ACCESS_TOKEN_EXPIRES,
+    );
+    const refreshToken = signRefreshToken(
+      user.id,
+      TokenExpiry.REFRESH_TOKEN_EXPIRES,
+    );
 
     // Save Refresh Token to DB for tracking/rotation
     await tokenRepository.createRefreshToken({
@@ -44,7 +54,6 @@ export async function LoginCredentialsService(email: string, password: string) {
           id: user.id,
           email: user.email,
           name: user.name,
-          role: user.role,
         },
       },
     };
