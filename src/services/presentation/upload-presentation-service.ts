@@ -3,10 +3,13 @@ import { parsePptx } from "@/services/ppt/ppt-parser-service";
 import { summarizePptText } from "@/services/ppt/ppt-summarizer-service";
 import { PresentationStatus } from "@/generated/prisma/client";
 
+type SummaryDetail = "short" | "medium" | "deep_dive";
+
 export async function UploadPresentationService(
   userId: string,
   fileName: string,
   fileBuffer: Buffer,
+  summaryDetail: SummaryDetail,
 ) {
   const presentationRepository = new PresentationRepository();
 
@@ -26,7 +29,7 @@ export async function UploadPresentationService(
     const extractedText = await parsePptx(fileBuffer);
 
     // Generate AI summary
-    const summary = await summarizePptText(extractedText);
+    const summary = await summarizePptText(extractedText, summaryDetail);
 
     const updated = await presentationRepository.updateStatus(
       presentation.id,

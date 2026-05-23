@@ -1,19 +1,19 @@
 import { generateChatResponse } from "@/services/ai/core/gemini-service";
 
-export async function summarizePptText(rawText: string): Promise<string> {
-  const prompt = `
-You are an educational assistant. Below is the extracted text from a PowerPoint presentation.
+type SummaryDetail = "short" | "medium" | "deep_dive";
 
-Your task:
-1. Summarize each major topic clearly and simply
-2. Use plain language that a student can easily understand
-3. Keep bullet points where helpful
-4. Do not repeat slide headers as-is — rephrase them into explanations
-5. Do not start your response with any intro sentence like "Here's a breakdown..." — go straight into the content
+const prompts: Record<SummaryDetail, string> = {
+  short: "Summarize this PowerPoint in 3-5 bullet points only. Be very brief.",
+  medium:
+    "Summarize this PowerPoint clearly with key points per topic. Use bullet points.",
+  deep_dive:
+    "Give a detailed and comprehensive summary of this PowerPoint. Cover every topic thoroughly with explanations.",
+};
 
-Presentation content:
-${rawText}
-`;
-
+export async function summarizePptText(
+  rawText: string,
+  detail: SummaryDetail,
+): Promise<string> {
+  const prompt = `${prompts[detail]}${rawText}`;
   return generateChatResponse(prompt);
 }

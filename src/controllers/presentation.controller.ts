@@ -16,10 +16,12 @@ export class PresentationController {
         .json({ code: 400, status: "error", message: "No file uploaded" });
     }
 
+    const summaryDetail = req.body?.summaryDetail ?? "medium";
     const result = await UploadPresentationService(
       userId,
       file.originalname,
       file.buffer,
+      summaryDetail,
     );
     return res.status(result.code).json(result);
   };
