@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { UploadPresentationService } from "@/services/presentation/upload-presentation-service";
 import { PresentationRepository } from "@/repositories/presentation.repository";
+import { generatePdf, generateDocx } from "@/services/presentation/download-presentation-service";
 
 export class PresentationController {
   private presentationRepository = new PresentationRepository();
@@ -89,5 +90,50 @@ export class PresentationController {
       status: "success",
       data: { status: presentation.status, summary: presentation.summary },
     });
+  };
+
+  public download = async (req: Request, res: Response) => {
+    const userId = (req as any).user?.sub;
+    const id = req.params.id as string;
+    const format = req.query.format as string;
+
+    if (!["pdf", "docx"].includes(format)) {
+      return res.status(400).json({
+        code: 400,
+        status: "error",
+        message: "Format must be pdf or docx",
+      });
+    }
+
+    const presentation = await this.presentationRepository.findById(id, userId);
+    if (!presentation) {
+      return res.status(404).json({
+        code: 404,
+        status: "error",
+        message: "Presentation not found",
+      });
+    }
+
+    if (!presentation.summary) {
+      return res.status(400).json({
+        code: 400,
+        status: "error",
+        message: "Summary is not ready yet",
+      });
+    }
+
+    const baseName = presentation.fileName.replace(".pptx", "");
+
+    if (format === "pdf") {
+      const buffer = await generatePdf(presentation.fileName, presentation.summary);
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", `attachment; filename="${baseName}.pdf"`);
+      return res.send(buffer);
+    }
+
+    const buffer = await generateDocx(presentation.fileName, presentation.summary);
+    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+    res.setHeader("Content-Disposition", `attachment; filename="${baseName}.docx"`);
+    return res.send(buffer);
   };
 }

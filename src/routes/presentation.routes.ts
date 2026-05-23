@@ -22,6 +22,11 @@ router.get(
   authMiddleware.execute,
   presentationController.getStatus,
 );
+router.get(
+  "/v1/:id/download",
+  authMiddleware.execute,
+  presentationController.download,
+);
 router.delete("/v1/:id", authMiddleware.execute, presentationController.delete);
 
 export default router;
