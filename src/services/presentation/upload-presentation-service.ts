@@ -2,8 +2,7 @@ import { PresentationRepository } from "@/repositories/presentation.repository";
 import { parsePptx } from "@/services/ppt/ppt-parser-service";
 import { summarizePptText } from "@/services/ppt/ppt-summarizer-service";
 import { PresentationStatus } from "@/generated/prisma/client";
-
-type SummaryDetail = "short" | "medium" | "deep_dive";
+import { SummaryDetail } from "@/generated/prisma/client";
 
 export async function UploadPresentationService(
   userId: string,
@@ -17,7 +16,7 @@ export async function UploadPresentationService(
     const presentation = await presentationRepository.create({
       userId,
       fileName,
-      slides: {},
+      summaryDetail,
     });
 
     await presentationRepository.updateStatus(

@@ -1,13 +1,18 @@
 import { prisma } from "@/lib/prisma";
 import { PresentationStatus } from "@/generated/prisma/client";
+import { SummaryDetail } from "@/generated/prisma/client";
 
 export class PresentationRepository {
-  async create(data: { userId: string; fileName: string; slides: object }) {
+  async create(data: {
+    userId: string;
+    fileName: string;
+    summaryDetail: SummaryDetail;
+  }) {
     return await prisma.presentation.create({
       data: {
         userId: data.userId,
         fileName: data.fileName,
-        slides: data.slides,
+        summaryDetail: data.summaryDetail,
         status: PresentationStatus.PENDING,
       },
     });

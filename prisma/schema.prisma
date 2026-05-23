@@ -37,15 +37,15 @@ model Token {
 }
 
 model Presentation {
-  id        String             @id @default(uuid())
-  fileName  String
-  slides    Json
-  summary   String?            @db.Text
-  status    PresentationStatus @default(PENDING)
-  createdAt DateTime           @default(now())
-  updatedAt DateTime           @updatedAt
-  userId    String
-  User      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id            String             @id @default(uuid())
+  fileName      String
+  summary       String?            @db.Text
+  summaryDetail SummaryDetail
+  status        PresentationStatus @default(PENDING)
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  userId        String
+  user          User               @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum TokenType {
