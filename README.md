@@ -4,6 +4,85 @@ REST API for uploading PowerPoint files and generating AI-powered summaries.
 
 ---
 
+## Setup Guide
+
+### Prerequisites
+
+- Node.js 20+
+- PostgreSQL database (e.g. [Neon](https://neon.tech))
+- Gmail account (for email verification)
+- [Gemini API key](https://aistudio.google.com/app/apikey)
+
+### 1. Clone and install dependencies
+
+```bash
+git clone https://github.com/LourdenB15/ppt-summarizer-api.git
+cd ppt-summarizer-api
+npm install
+```
+
+### 2. Configure environment variables
+
+Create a `.env` file in the root directory:
+
+```env
+# Server
+APP_NAME="PPT Summarizer API"
+PORT=8000
+NODE_ENV=development
+BACKEND_URL="http://localhost:8000"
+
+# Frontend (for CORS)
+FRONTEND_URL="http://localhost:3000"
+
+# Database (PostgreSQL)
+DATABASE_URL="your-postgresql-connection-string"
+
+# JWT — generate a secret at https://jwtsecrets.com
+JWT_SECRET=your-jwt-secret
+
+# Email (Gmail)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER="your-gmail@gmail.com"
+SMTP_PASSWORD="your-gmail-app-password"
+SMTP_FROM="your-gmail@gmail.com"
+
+# Gemini AI
+GEMINI_API_KEY=your-gemini-api-key
+```
+
+> For `SMTP_PASSWORD`, use a Gmail App Password — not your regular Gmail password.
+> [How to generate a Gmail App Password](https://www.youtube.com/watch?v=74QQfPrk4vE)
+
+### 3. Run database migrations
+
+```bash
+npm run db:migrate
+```
+
+> This also auto-generates the Prisma client. Only run `npm run db:generate` separately if you change the schema without a migration.
+
+### 4. Start the development server
+
+```bash
+npm run dev
+```
+
+Server runs at `http://localhost:8000`.
+
+### Scripts
+
+| Command               | Description                      |
+| --------------------- | -------------------------------- |
+| `npm run dev`         | Start dev server with hot reload |
+| `npm run build`       | Build for production             |
+| `npm run db:migrate`  | Run database migrations          |
+| `npm run db:generate` | Regenerate Prisma client         |
+| `npm run lint`        | Lint the codebase                |
+
+---
+
 ## Base URL
 
 ```
