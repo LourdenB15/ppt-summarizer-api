@@ -1,7 +1,10 @@
 import { Request, Response } from "express";
 import { UploadPresentationService } from "@/services/presentation/upload-presentation-service";
 import { PresentationRepository } from "@/repositories/presentation.repository";
-import { generatePdf, generateDocx } from "@/services/presentation/download-presentation-service";
+import {
+  generatePdf,
+  generateDocx,
+} from "@/services/presentation/download-presentation-service";
 
 export class PresentationController {
   private presentationRepository = new PresentationRepository();
@@ -15,8 +18,15 @@ export class PresentationController {
         .status(400)
         .json({ code: 400, status: "error", message: "No file uploaded" });
     }
+    if (!file.originalname.toLowerCase().endsWith(".pptx")) {
+      return res.status(415).json({
+        code: 415,
+        status: "error",
+        message: "Only .pptx files are supported.",
+      });
+    }
 
-    const summaryDetail = req.body?.summaryDetail ?? "medium";
+    const summaryDetail = req.body?.summaryDetail;
     const result = await UploadPresentationService(
       userId,
       file.originalname,
@@ -99,14 +109,6 @@ export class PresentationController {
     const id = req.params.id as string;
     const format = req.query.format as string;
 
-    if (!["pdf", "docx"].includes(format)) {
-      return res.status(400).json({
-        code: 400,
-        status: "error",
-        message: "Format must be pdf or docx",
-      });
-    }
-
     const presentation = await this.presentationRepository.findById(id, userId);
     if (!presentation) {
       return res.status(404).json({
@@ -127,15 +129,30 @@ export class PresentationController {
     const baseName = presentation.fileName.replace(".pptx", "");
 
     if (format === "pdf") {
-      const buffer = await generatePdf(presentation.fileName, presentation.summary);
+      const buffer = await generatePdf(
+        presentation.fileName,
+        presentation.summary,
+      );
       res.setHeader("Content-Type", "application/pdf");
-      res.setHeader("Content-Disposition", `attachment; filename="${baseName}.pdf"`);
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${baseName}.pdf"`,
+      );
       return res.send(buffer);
     }
 
-    const buffer = await generateDocx(presentation.fileName, presentation.summary);
-    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
-    res.setHeader("Content-Disposition", `attachment; filename="${baseName}.docx"`);
+    const buffer = await generateDocx(
+      presentation.fileName,
+      presentation.summary,
+    );
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    );
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${baseName}.docx"`,
+    );
     return res.send(buffer);
   };
 }
