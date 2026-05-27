@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - deployment
 
 jobs:
   build-and-push:
@@ -48,7 +47,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "docker/docker-compose.yaml,scripts/deploy.sh"
           target: "/root"
-          timeout: 60s
+          timeout: 120s
 
       - name: SSH and Deploy
         uses: appleboy/ssh-action@v1.0.3
