@@ -1,5 +1,5 @@
 # Stage 1: Base stage with Node.js Alpine image
-FROM node:22-alpine AS builder
+FROM node:20-alpine AS builder
 
 # Install libc6-compat for compatibility and globally install specific npm version
 RUN apk add --no-cache libc6-compat && \
@@ -24,7 +24,7 @@ RUN npm run db:generate
 RUN npm run build
 
 # Stage 2: Runner stage
-FROM node:22-alpine AS runner
+FROM node:20-alpine AS runner
 
 # Set the working directory in the container
 WORKDIR /app
@@ -36,12 +36,12 @@ COPY package.json package-lock.json ./
 RUN npm install --omit=dev --frozen-lockfile
 
 # Copy the generated Prisma Client and schema from builder
-# COPY --from=builder /builder/prisma ./prisma
-# RUN npx --yes prisma generate
+COPY --from=builder /builder/prisma ./prisma
+RUN npx --yes prisma generate
 
 # Copy built artifacts from the builder stage
 COPY --from=builder /builder/dist ./dist
-
+COPY --from=builder /builder/src/services/mail/templates ./src/services/mail/templates
 # Inform Docker that the container is listening on port 8000 at runtime
 EXPOSE 8000
 

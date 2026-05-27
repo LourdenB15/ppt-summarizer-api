@@ -4,8 +4,7 @@ on:
   push:
     branches:
       - main
-    paths-ignore:
-      - "Docs/**"
+      - deployment
 
 jobs:
   build-and-push:
@@ -31,7 +30,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/ppt-summarizer-api
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/pptx-summarizer-api
 
   deploy:
     needs: [build-and-push]
@@ -49,6 +48,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "docker/docker-compose.yaml,scripts/deploy.sh"
           target: "/root"
+          timeout: 60s
 
       - name: SSH and Deploy
         uses: appleboy/ssh-action@v1.0.3

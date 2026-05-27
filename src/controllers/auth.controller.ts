@@ -1,17 +1,29 @@
 import { Request, Response } from "express";
-import { SignupUserService, LoginCredentialsService, VerifyEmailService, RefreshTokenService, ResendEmailVerificationService, GetMeService } from "@/services/auth";
+import {
+  SignupUserService,
+  LoginCredentialsService,
+  VerifyEmailService,
+  RefreshTokenService,
+  ResendEmailVerificationService,
+  GetMeService,
+} from "@/services/auth";
 import { TokenExpiry, toMilliseconds } from "@/lib/jwt";
 import { ENV } from "@/config/env";
 
 export class AuthController {
   // Helper to set cookies
-  private setAuthCookies(res: Response, tokens: { accessToken: string; refreshToken: string }) {
+  private setAuthCookies(
+    res: Response,
+    tokens: { accessToken: string; refreshToken: string },
+  ) {
     const isProduction = ENV.NODE_ENV === "production";
+    const domain = isProduction ? ".pptx-summarizer.online" : undefined;
 
     res.cookie("accessToken", tokens.accessToken, {
       httpOnly: true,
       secure: isProduction,
       sameSite: isProduction ? "none" : "lax",
+      domain,
       maxAge: toMilliseconds(TokenExpiry.ACCESS_TOKEN_EXPIRES),
     });
 
@@ -19,6 +31,7 @@ export class AuthController {
       httpOnly: true,
       secure: isProduction,
       sameSite: isProduction ? "none" : "lax",
+      domain,
       maxAge: toMilliseconds(TokenExpiry.REFRESH_TOKEN_EXPIRES),
     });
   }
@@ -36,12 +49,12 @@ export class AuthController {
     const result = await VerifyEmailService(token);
     return res.status(result.code).json(result);
   };
-  
+
   // Handle Login Account
   public login = async (req: Request, res: Response) => {
     const { email, password } = req.body ?? {};
     const result = await LoginCredentialsService(email, password);
-    
+
     if (result.code === 200 && result.data?.tokens) {
       this.setAuthCookies(res, result.data.tokens);
     }
@@ -63,9 +76,16 @@ export class AuthController {
 
   // Handle Logout
   public logout = (req: Request, res: Response) => {
-    res.clearCookie("accessToken");
-    res.clearCookie("refreshToken");
-    return res.status(200).json({ code: 200, status: "success", message: "Logged out successfully" });
+    const isProduction = ENV.NODE_ENV === "production";
+    const domain = isProduction ? ".pptx-summarizer.online" : undefined;
+
+    res.clearCookie("accessToken", { domain });
+    res.clearCookie("refreshToken", { domain });
+    return res.status(200).json({
+      code: 200,
+      status: "success",
+      message: "Logged out successfully",
+    });
   };
 
   // Resend Email Verification

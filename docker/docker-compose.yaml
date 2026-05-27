@@ -1,10 +1,10 @@
-name: ppt-summarizer-api
+name: pptx-summarizer-api
 
 services:
   app:
-    image: fungi5163/ppt-summarizer-api
+    image: fungi5163/pptx-summarizer-api
     ports:
       - "8000:8000"
     env_file:
-      - /root/env/ppt-summarizer-api/.env
+      - /root/env/pptx-summarizer-api/.env
     restart: unless-stopped
