@@ -6,6 +6,7 @@ import {
   RefreshTokenService,
   ResendEmailVerificationService,
   GetMeService,
+  ChangePasswordService,
 } from "@/services/auth";
 import { TokenExpiry, toMilliseconds } from "@/lib/jwt";
 import { ENV } from "@/config/env";
@@ -99,6 +100,14 @@ export class AuthController {
   public me = async (req: Request, res: Response) => {
     const userId = (req as any).user?.sub;
     const result = await GetMeService(userId);
+    return res.status(result.code).json(result);
+  };
+
+  // Change Password
+  public changePassword = async (req: Request, res: Response) => {
+    const userId = (req as any).user?.sub;
+    const { currentPassword, newPassword } = req.body ?? {};
+    const result = await ChangePasswordService(userId, currentPassword, newPassword);
     return res.status(result.code).json(result);
   };
 }
