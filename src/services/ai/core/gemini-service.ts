@@ -16,7 +16,7 @@ export async function generateChatResponse(prompt: string): Promise<string> {
     try {
       const model = genAI.getGenerativeModel({
         model: modelName,
-        systemInstruction: `x`,
+        systemInstruction: `You are a presentation summarizer. Always respond directly without any introduction, preamble, or closing remarks. The very first line of your response must be the document title extracted from the content. Follow it with a blank line, then your summary.`,
       });
 
       const chat = model.startChat({});
